@@ -1,0 +1,62 @@
+#!/bin/bash
+# flag
+
+# Function to flag
+# This function takes one argument which is a string of valid flag options
+# The function uses `getopts` to parse the flag passed to the script, and then sets variables accordingly
+# Lowercase flag represent flag that don't take a value and uppercase flag represent flag that take a value
+# The variables set will be flag_[flag], for example flag_a for flag -a
+
+# Declare the variable
+for letter in "abcdefghijklmnopqrstuvwxyz"; do 
+	declare flag_$letter=0
+done
+
+flag() {
+    local options="abcdefghijklmnopqrstuvwxyzA:B:C:D:E:F:G:H:I:J:K:L:M:N:O:P:Q:R:S:T:U:V:W:X:Y:Z:"
+    while getopts "$options" opt; do
+        case $opt in
+            [a-z])
+                eval "flag_$opt=1"
+                ;;
+            [A-Z])
+								if [[ -z $OPTARG ]]; then # Check if no value was given
+								    echo "Error: -$opt argument value"
+								    exit 1
+								else
+	                eval "flag_$opt=\$OPTARG"
+	              fi
+                ;;
+            \?)
+                echo "Invalid option: -$OPTARG" >&2
+                ;;
+        esac
+    done
+    shift $((OPTIND -1))
+    OPTIND=1
+}
+
+# check for help flag
+if [[ $1 == "help" || $1 =~ ^[Hh]$ ]]; then
+
+	if command -v less >/dev/null 2>&1 && which less >/dev/null; then
+		# If available display the help with the "less" terminal pager program.
+		echo -e "To include this script in another project, use the following command:\nsource /path/to/script.sh\n\nThen, call the flag function and pass a string of valid flag options, like this:\nflag \"\$@\"\n\nThe function takes one argument which is a string of valid flag options\nThe function uses `getopts` to parse the flag passed to the script, and then sets variables accordingly\nLowercase flag represent flag that don't take a value and uppercase flag represent flag that take a value\nThe variables set will be flag_[flag], for example flag_a for flag -a"
+	else
+	    echo "To include this script in another project, use the following command:"
+	    echo "source /path/to/script.sh"
+	    echo ""
+	    echo "Then, call the flag function and pass a string of valid flag options, like this:"
+			echo ""
+			echo "flag \"\$@\""
+	    echo ""
+			echo "The function takes one argument which is a string of valid flag options"
+	    echo ""
+			echo "The function uses `getopts` to parse the flag passed to the script, and then sets variables accordingly"
+	    echo ""
+			echo "Lowercase flag represent flag that don't take a value and uppercase flag represent flag that take a value"
+	    echo ""
+			echo "The variables set will be flag_[flag], for example flag_a for flag -a"
+	    exit
+	fi
+fi
