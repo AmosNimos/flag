@@ -1,0 +1,41 @@
+.TH FLAG 1 "2024-04-23" "3.0" "flag man page"
+
+.SH NAME
+flag - parse command line flags and convert them to variables
+
+.SH SYNOPSIS
+.B . flag
+.br
+.B flag "[-* <value>][-*][--** <value>] [--**] ..."
+
+.SH DESCRIPTION
+The \fBflag\fP utility parses command line flags and converts them to easy-to-use variables. It is intended to be used within other scripts. To use the \fBflag\fP utility, source the "flag" script with the dot command, followed by passing the arguments directly to it:
+
+.B source /path/to/flag.sh "$@"
+
+All flags, regardless of capitalization, are treated as taking a value if one is not explicitly provided. If a flag is provided without a value, it is set to 1 (true as boolean).
+
+The variables set will be of the form "flag_[flag]", for example "flag_a" for flag "-a" and "flag_A" for flag "-A".
+
+If you have a print_help function in your script, make sure to source the "flag" script after defining it to avoid overwriting it.
+
+.SH EXAMPLES
+To use the \fBflag\fP utility within another script, source the "flag" script with the dot command:
+.br
+.B . flag
+.br
+Then, call the "flag" function and pass a string of valid flag options:
+.br
+.B flag "[-* <value>][-*][--** <value>] [--**] ..."
+
+.SH SEE ALSO
+eval(1)
+
+.SH AUTHOR
+The \fBflag\fP utility was written by Amosnimos.
+
+.SH WARNING
+.RS
+.IP \(bu Do not use symbols in your long flag names. For example, "--flag_name" and "--flag-name" are not supported and can cause issues.
+.IP \(bu If you have a print_help function in your script, make sure to source the "flag" script after defining it to avoid overwriting it.
+.RE
