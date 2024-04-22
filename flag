@@ -1,6 +1,4 @@
 #!/bin/bash
-
-#!/bin/bash
 ################################################################################
 # Name:        flag
 # Date:        2024-04-21
@@ -13,89 +11,73 @@
 # ▌  ▌  ▌ ▌▌ ▌
 # ▘  ▀▀▘▘ ▘▝▀ 
 
-print_help() {
-    # Define colors
-    color_reset='\e[0m'
-    yellow_color='\e[33m'
-    green_color='\e[32m'
+# If already define by the parrent script don't define the print_help
+if [[ ! "$(declare -f)" =~ "print_help" ]]; then
+    print_help() {
+        # Define colors
+        color_reset='\e[0m'
+        yellow_color='\e[33m'
+        green_color='\e[32m'
 
-    echo "Usage: $0 [flags] [--help]"
-    echo ""
+        echo "Usage: $0 [flags] [--help]"
+        echo ""
 
-    echo -e "${green_color}Description:${color_reset}"
-    echo "The flag script parses command-line flags and sets variables accordingly."
-    echo "All flags, regardless of capitalization, are treated as taking a value if one is not explicitly provided."
-    echo "If a flag is provided without a value, it is set to 1 (true as boolean)."
-    echo ""
+        echo -e "${green_color}Description:${color_reset}"
+        echo "The flag script parses command-line flags and sets variables accordingly."
+        echo "All flags, regardless of capitalization, are treated as taking a value if one is not explicitly provided."
+        echo "If a flag is provided without a value, it is set to 1 (true as boolean)."
+        echo ""
 
-    echo -e "${green_color}Options:${color_reset}"
-    echo "  --help   Display this help message"
-    echo ""
+        echo -e "${green_color}Options:${color_reset}"
+        echo "  --help   Display this help message"
+        echo ""
 
-    echo -e "${green_color}Example:${color_reset}"
-    echo "To use the 'flag' script, include it in your project and call it with the source command, like this:"
-    echo ""
-    echo -e "${yellow_color}source flag \"\$@\"${color_reset}"
-    echo ""
+        echo -e "${green_color}Example:${color_reset}"
+        echo "To use the 'flag' script, include it in your project and call it with the source command, like this:"
+        echo ""
+        echo -e "${yellow_color}source flag \"\$@\"${color_reset}"
+        echo ""
 
-    echo -e "${green_color}Warning:${color_reset}"
-    echo -e "Make sure to source this script after the print_help function of your other script, to avoid overwriting them."
+        echo -e "${green_color}Warning:${color_reset}"
+        echo -e "Make sure to source this script after the print_help function of your other script, to avoid overwriting them."
 
-    exit 0
-}
+        exit 0
+    }
+fi
 
-if [[ ${1,,} == *"help" ]]; then
+if [[ ${1,,} == *"help" || ${1,,} == "-h" ]]; then
     print_help
 fi
 
-# Function to process long flags
-process_long_flags() {
+# Function to process flags
+process_flags() {
     # Iterate through the arguments
     while [[ $1 ]]; do
         # Check if the argument starts with "--"
         if [[ $1 =~ ^-- ]]; then
             flag=${1#--}  # Extract the flag name
-            shift  # Move to the next argument
-            if [[ $1 && $1 != --* ]]; then
-                # If the next argument exists and doesn't start with "--" (i.e., it's a value)
-                # Assign the value to the flag variable
-                eval "flag_$flag=\"$1\""
-                shift  # Move to the next argument
-            else
-                # If there's no value or the next argument starts with "--"
-                # Set the flag variable to 1
-                eval "flag_$flag=1"
-            fi
-        else
-            shift  # Move to the next argument
-        fi
-    done
-}
-
-# Function to process short flags containing both uppercase and lowercase letters
-process_short_flags() {
-    # Iterate through the arguments
-    while [[ $1 ]]; do
-        # Check if the argument starts with a dash followed by an uppercase or lowercase letter
-        if [[ $1 =~ ^-[A-Za-z]$ ]]; then
+        elif [[ $1 =~ ^-[A-Za-z]$ ]]; then
+            # Check if the argument starts with a dash followed by an uppercase or lowercase letter
             flag=${1#-}  # Extract the flag letter
-            shift  # Move to the next argument
-            if [[ $1 && $1 != -* ]]; then
-                # If the next argument exists and doesn't start with a dash (i.e., it's a value)
-                # Assign the value to the flag variable
-                eval "flag_$flag=\"$1\""
-                shift  # Move to the next argument
-            else
-                # If there's no value or the next argument starts with a dash
-                # Set the flag variable to 1
-                eval "flag_$flag=1"
-            fi
         else
             shift  # Move to the next argument
+            continue
+        fi
+
+        shift  # Move to the next argument
+
+        if [[ $1 && $1 != -* ]]; then
+            # If the next argument exists and doesn't start with a dash (i.e., it's a value)
+            # Assign the value to the flag variable
+            eval "flag_$flag=\"$1\""
+            shift  # Move to the next argument
+        else
+            # If there's no value or the next argument starts with a dash
+            # Set the flag variable to 1
+            eval "flag_$flag=1"
         fi
     done
 }
 
-# Test the function with sample arguments
-process_long_flags "$@"
-process_short_flags "$@"
+# Process flags from passed arguments
+process_flags "$@"
