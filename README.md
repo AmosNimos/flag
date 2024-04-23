@@ -6,7 +6,7 @@ Flag is a Bash script that simplifies the process of parsing command-line flags 
 
 🏴‍☠️ What does it stand for?
 -------
-Flag stands for "Friendly Linux Argument Gatherer" or, if you like recursion, "Flags: Linux Argument Gatherer."
+Flag stands for "Friendly Linux Argument Gatherer" or, if you like recursion, "Flag: Linux Argument Gatherer."
 
 🏴‍☠️ Usage
 -------
