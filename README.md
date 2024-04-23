@@ -19,7 +19,7 @@ The script parses both short flags (single-letter flags preceded by a single das
 
 🏴‍☠️ License
 -------
-Flag is licensed under the GNU LESSER GENERAL PUBLIC LICENSE. See the LICENSE file for details.
+Flag is licensed under GNU LGPL. See the LICENSE file for details.
 
 🏴‍☠️ Author
 -------
