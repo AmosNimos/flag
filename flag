@@ -16,9 +16,9 @@ if [[ ! "$(declare -f)" =~ "print_help" ]]; then
     # Function to print help message
     print_help() {
         # Define colors
-        color_reset='\e[0m'
-        yellow_color='\e[33m'
-        green_color='\e[32m'
+        local color_reset='\e[0m'
+        local yellow_color='\e[33m'
+        local green_color='\e[32m'
 
         echo "Usage: $0 [flags] [--help]"
         echo ""
