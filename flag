@@ -1,94 +1,83 @@
 #!/bin/bash
 ################################################################################
 # Name:        flag
-# Date:        2024-04-21
+# Date:        2024-11-12
 # Author:      Amosnimos
-# Description: The flag script parses command-line flags and sets variables accordingly.
+# Description: Parses command-line flags, treating flags as booleans or assigning values if provided.
 ################################################################################
 
-# ▛▀▘▌  ▞▀▖▞▀▖
-# ▙▄ ▌  ▙▄▌▌▄▖
-# ▌  ▌  ▌ ▌▌ ▌
-# ▘  ▀▀▘▘ ▘▝▀ 
-
-# If already define by the parrent script don't define the print_help
+# Check for an existing print_help function and define if absent
 if [[ ! "$(declare -f)" =~ "print_help" ]]; then
-    # Function to print help message
     print_help() {
-        # Define colors
         local color_reset='\e[0m'
         local yellow_color='\e[33m'
         local green_color='\e[32m'
-
-        echo "Usage: $0 [flags] [--help]"
-        echo ""
-
+        
+        echo -e "Usage: $0 [flags] [--help]\n"
         echo -e "${green_color}Description:${color_reset}"
-        echo "The flag script parses command-line flags and sets variables accordingly."
-        echo "All flags, regardless of capitalization, are treated as taking a value if one is not explicitly provided."
-        echo "If a flag is provided without a value, it is set to 1 (true as boolean)."
-        echo ""
-
+        echo "Parses command-line flags, treating flags as booleans or assigning values if provided."
+        echo -e "Flags used without values default to 1.${color_reset}\n"
+        
         echo -e "${green_color}Options:${color_reset}"
         echo "  --help   Display this help message"
         echo ""
-
         echo -e "${green_color}Example:${color_reset}"
-        echo "To use the 'flag' script, include it in your project and call it with the source command, like this:"
+        echo "  source flag \"\$@\""
         echo ""
-        echo -e "${yellow_color}source flag \"\$@\"${color_reset}"
-        echo ""
-
-        echo -e "${green_color}Warning:${color_reset}"
-        echo -e "Make sure to source this script after the print_help function of your other script, to avoid overwriting them."
 
         exit 0
     }
 fi
 
 # Print help message if "--help" or "-h" flag is provided
-if [[ ${1,,} == *"help" || ${1,,} == "-h" ]]; then
-    print_help
+if [[ "$1" == "--help" || "$1" == "-h" ]]; then
+    if [[ "${BASH_SOURCE[0]}" == "${0}" ]]; then
+        print_help
+    fi
 fi
 
-# Function to process flags
+# Flag parsing function
 process_flags() {
     local flag=""
     local value=""
 
     while [[ $# -gt 0 ]]; do
-        arg="$1"
+        local arg="$1"
         shift
-
-        # Check if the argument is a flag
+        
+        # If the argument is a long flag (starts with --)
         if [[ $arg =~ ^-- ]]; then
-            flag="${arg#--}"  # Extract the flag name
+            flag="${arg#--}"
+            value=""
+            # Check if the next argument is a value for this flag
+            if [[ -n "$1" && ! "$1" =~ ^- ]]; then
+                value="$1"
+                shift
+            fi
+        # If the argument is a short flag (starts with -)
         elif [[ $arg =~ ^-[A-Za-z]$ ]]; then
-            flag="${arg#-}"  # Extract the flag letter
+            flag="${arg#-}"
+            value=""
+            # Check if the next argument is a value for this flag
+            if [[ -n "$1" && ! "$1" =~ ^- ]]; then
+                value="$1"
+                shift
+            fi
         else
-            # Argument is a value for the previous flag
+            # If the argument is a value for a previous flag
             if [[ -n $flag ]]; then
-                # If this is the first argument following a flag, set value without leading space
-                if [[ -z $value ]]; then
-                    value="$arg"
-                else
-                    # Concatenate the argument to the existing value with a space
-                    value+=" $arg"
-                fi
+                value="$arg"
             fi
         fi
 
-        # If the flag is followed directly by another flag or is the last argument, set its value
-        if [[ $flag && ( ! $1 || $1 =~ ^- ) ]]; then
-            if [[ -z $value ]]; then
-                value=1
-            fi
-            eval "flag_$flag=\"$value\""
+        # Assign the flag with its value (or default to 1 if no value provided)
+        if [[ -n $flag ]]; then
+            eval "flag_$flag=${value:-1}"
             flag=""
             value=""
         fi
     done
 }
 
-# Process flags
+# Call the flag processing function
 process_flags "$@"
